@@ -1,0 +1,61 @@
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <div id="energy_consumption_data">{{ energy_consumption_data }}</div>
+  <div id="waste_recycled"> {{ recycled }} </div>
+  <div id="waste_ovr">{{ waste_ovr }}</div>
+      <script>
+google.charts.load('current', {packages: ['corechart', 'bar']});
+google.charts.setOnLoadCallback(drawBasic);
+
+function drawBasic() {
+
+    var data = google.visualization.arrayToDataTable([
+      ['Place', 'Energy Consumption /kWh',],
+      ['Average', 500000],
+      ['You', Number(document.getElementById("energy_consumption_data").innerText)]
+    ]);
+
+    var options = {
+        title: 'Energy consumption comparison',
+        chartArea: {width: '50%'},
+        hAxis: {
+            title: 'Energy Consumption /kWh',
+            minValue: 0
+        },
+        vAxis: {
+            title: 'Place'
+        }
+    };
+    var chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+    chart.draw(data, options);
+}
+
+</script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+google.charts.load("current", {packages:["corechart"]});
+google.charts.setOnLoadCallback(drawChart);
+function drawChart() {
+    var overallWaste = Number(document.getElementById("waste_ovr").innerText);
+    var recycledWaste = Number(document.getElementById("waste_recycled").innerText);
+
+    var data = google.visualization.arrayToDataTable([
+        ['Task', 'Hours per Day'],
+        ['Waste thrown',     overallWaste - recycledWaste],
+        ['Waste recycled',      recycledWaste]
+    ]);
+
+    var options = {
+        title: 'Waste recycling',
+        is3D: true,
+    };
+
+    var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+    chart.draw(data, options);
+}
+</script>
+  </head>
+  <body>
+    <div id="chart_div"></div>
+    <div id="piechart_3d" style="width: 900px; height: 500px;"></div>
+  </body>
