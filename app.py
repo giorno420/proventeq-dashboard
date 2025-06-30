@@ -61,7 +61,6 @@ governance_questions_html = f"""
 {Question("Is there a cybersecurity policy?","cybersecurity_policy").one(("Yes","yes"),("No","no"))}
 {Question("Is there a whistleblower policy?","whistleblower policy").one(("Yes","yes"),("No","no"))}
 {Question("Number of board members?","board_members").number()}
- 
 """
  
 
@@ -84,9 +83,16 @@ def submit():
     {values}
     """
 
-@app.route('/scores')
+@app.route('/scores', methods=['POST'])
 def scores():
-    return render_template('scores.html')
+    values = request.form
+
+    return render_template(
+        'scores.html', 
+        energy_consumption_data=values['energy_consumption'], 
+        recycled=values['waste_recycled'], 
+        waste_ovr=values['waste_produced']
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
