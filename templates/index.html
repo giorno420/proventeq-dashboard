@@ -1,0 +1,88 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>proventeq form</title>
+</head>
+<body>
+  <h2>ecg form</h2>
+  <form action="/response" method="post">
+
+    <fieldset>
+      <legend>select a bunch</legend>
+      <label><input type="checkbox" name="many" value="one"> one</label><br>
+      <label><input type="checkbox" name="many" value="two"> two</label><br>
+      <label><input type="checkbox" name="many" value="three"> three</label><br>
+      <label><input type="checkbox" name="many" value="four"> four</label>
+    </fieldset>
+
+    <br>
+
+    <fieldset>
+      <legend>select one</legend>
+      <label><input type="radio" name="single" value="one" required> one</label><br>
+      <label><input type="radio" name="single" value="two"> two</label><br>
+      <label><input type="radio" name="single" value="three"> three</label>
+    </fieldset>
+
+    <br>
+
+    <label for="line">write a sentence</label><br>
+    <input type="text" id="line" name="line" required><br><br>
+
+    <label for="paragraph">write a para</label><br>
+    <textarea id="paragraph" name="para" rows="5" cols="40"></textarea><br><br>
+
+    <input type="submit" value="Submit">
+  </form>
+</body>
+</html> -->
+
+<style>
+    
+    fieldset {
+        display: inline-block;
+        border-radius: 10px;
+        border: 1.5px solid #000;
+    }
+    input, textarea, select {
+        border: 1.5px solid #000;
+        border-radius: 5px;
+    }
+
+    html {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .question_title {
+        font-size: 2em;
+    }
+
+    .form-layout {
+        text-align: center;
+        background-color: #87CEFA;
+        width: 80%;
+        margin: 0 auto;
+        justify-content: center;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        border-radius: 2%;
+    }
+</style>
+<div class="form-layout">
+<form action="/response" method="post">
+    <h3 class="question_title">General Questions</h3>
+    {{ generalQ|safe }}
+
+    <h3 class="question_title">Environment Questions</h3>
+    {{ environmentQ|safe }}
+
+    <h3 class="question_title">Social Questions</h3>
+    {{ socialQ|safe }}
+
+    <h3 class="question_title">Governance Questions</h3>
+    {{ governanceQ|safe }}
+
+    <input type="submit" value="Submit">
+</form>
+</div>
