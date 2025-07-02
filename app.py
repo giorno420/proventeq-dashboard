@@ -1,9 +1,7 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 from datetime import date
-import plotly.express as px
 
-# Page config
 
 if "page" not in st.session_state:
     st.session_state.page = 0
@@ -12,6 +10,24 @@ def nextpage():
     st.session_state.page += 1
 def restart(): 
     st.session_state.page = 0
+
+def plot_x_scale(value, benchmark):
+    st.markdown("▼: Your score")
+    st.write("┃: Benchmark score")
+    fig, ax = plt.subplots(figsize=(6, 1))
+    ax.scatter([benchmark], [0.1], color='olivedrab', s=80, marker='|')
+    ax.scatter([value], [0.1], color='black', s=80, marker='v')
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 1)
+    ax.get_xaxis().set_visible(True)
+    ax.get_yaxis().set_visible(False)
+    ax.set_xlabel("Score (0-100)")
+    for i, spine in enumerate(ax.spines.values()):
+        if i == 2: continue
+        spine.set_visible(False)
+                
+    st.pyplot(fig) 
+    
 
 empty = st.empty()
 
@@ -45,7 +61,6 @@ if st.session_state.page == 0:
 
         st.session_state.employees = st.number_input("Total number of employees?", value=5)
         st.session_state.female_employees = st.number_input("Total number of female and non-binary employees?", value=1)
-        st.session_state.training_hours = st.number_input("Total individual employee training hours per year?", value=None)
         st.session_state.outreach = st.radio("Does the organisation have any outreach programs?", ["Yes","No"], index=None)
         st.session_state.volunteer_hours = st.number_input("Total volunteer/outreach hours per year?", value=200)
 
@@ -61,44 +76,40 @@ if st.session_state.page == 0:
 elif st.session_state.page == 1:
     
     with empty.container():
-        # Title and header
         st.title("ESG Dashboard")
 
         name = st.session_state.get("name", None)
-
         energy_consumption = st.session_state.get("energy_consumption", None)
+        fossil_fuels = st.session_state.get("fossil_fuels", None)
+        outreach = st.session_state.get("outreach", None)
+        volunteer_hours = st.session_state.get("volunteer_hours", None)
+
         done = True
         for val in st.session_state.values():
             if val is None:
                 done = False
                 break
-        # if not done:
-        #     st.warning("Some fields are not filled in yet.")
+        if not done:
+            st.warning("Some fields are not filled in yet.")
             
-        # else:
-        if True:
+        else:
 
             st.header("Environment 🌲")
 
             tab1, tab2, tab3 = st.tabs(["Energy Consumption", "Waste Management", "Carbon Emissions"])
 
             with tab1:
-
                 labels = [f"Energy Consumption {name}", "General Energy Consumption"]
                 values = [energy_consumption, 500000]
-
                 consumptionFig, consumptionAx = plt.subplots()
                 consumptionAx.bar(labels, values, color=["olivedrab" if energy_consumption < 500000 else "firebrick", "olivedrab"])
                 consumptionAx.set_ylabel("Energy consumption (kWh)")
                 consumptionAx.set_title("Consumption")
-
                 st.pyplot(consumptionFig)
 
             with tab2:
                 waste = st.session_state.get("waste", None)
                 recycle = st.session_state.get("recycle", None)
-
-                
                 wasteFig, wasteAx = plt.subplots(figsize=(4, 4))
                 wasteAx.pie([recycle, waste - recycle], labels=["Waste recycled", "Waste thrown"], colors=["olivedrab", "firebrick"], radius=0.8, autopct='%.0f%%', textprops={'size': 'smaller'})
                 st.pyplot(wasteFig)
@@ -112,16 +123,33 @@ elif st.session_state.page == 1:
                 st.pyplot(emissionsFig)
 
             st.header("Social 🤝")
+
             employees = st.session_state.get("employees", None)
             female_employees = st.session_state.get("female_employees", None)
-        
             genderFig, genderAx = plt.subplots(figsize=(4, 4))
             genderAx.pie([employees - female_employees, female_employees], labels=["Male employees", "Female/Nonbinary employees"], colors=["cornflowerblue", "darkorange"], radius=0.8, autopct='%.0f%%', textprops={'size': 'smaller'})
             st.pyplot(genderFig)
 
-            # individual volunteer hours
+            # ivh stands for individual volunteer hours
             ivh = st.session_state.get('volunteer_hours', 0) / employees
             st.write(f"20 hours per year is a good benchmark for yearly outreach hours, and you have {ivh} hours per employee, which is **{"above" if ivh >= 20 else "below"}** the benchmark. {"Well done!" if ivh >= 20 else ""}")
 
-            
+            employee_ratio = (female_employees / employees) * 100
+            does_outreach = 30 if outreach == "Yes" else 0
+
+            environmental_score = (25 if fossil_fuels == "Yes" else 0) + ((100*(1-((energy_consumption/500000) if energy_consumption > 500000 else 1)))*0.20) + ((100*(1-(waste/50000)))*0.15) + ((100*(recycle/35000))*0.15) + ((100*(1-((carbon_emissions/600) if carbon_emissions < 600 else 1)))*0.25)
+            governance_score = [st.session_state.get("risk_management", None), st.session_state.get("cybersecurity", None), st.session_state.get("whistleblower", None)].count("Yes") * (100/3)
+            social_score = does_outreach + ((employee_ratio/50))*0.40 + (((volunteer_hours/20) if volunteer_hours < 20 else 1)*100)*0.30
+
+
+
+            st.header("Overall Results")
+            tab4, tab5, tab6 = st.tabs(["Environment", "Social", "Governance"])
+            with tab4:
+                plot_x_scale(environmental_score, 48)
+            with tab5:
+                plot_x_scale(social_score, 48)
+            with tab6:
+                plot_x_scale(governance_score, 100)
+
             st.button("Restart", on_click=restart, disabled=(st.session_state.page > 3))
