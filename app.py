@@ -17,7 +17,7 @@ def restart():
 def find_index(lst, val):
     try:
         return lst.index(val)
-    except ValueError:
+    except Exception:
         return None
 
 def plot_x_scale(value, benchmark):
@@ -52,9 +52,9 @@ if st.session_state.page == 0:
         st.header("Company 🏢")
 
         st.session_state.name = st.text_input("Name of the organisation:",value = st.session_state.get("name",None))
-        st.session_state.registration_location = st.selectbox("where was the organisation registered?",["Choose a country","United Kingdom", "USA", "France", "Germany", "India", "Australia", "Japan"])
-        st.session_state.foundation_date = st.date_input("Select the date the company was created:",value=date.today())
-        st.session_state.location = st.selectbox("Where is the location of the organisation's headquarters?",["Choose a country","United Kingdom", "USA", "France", "Germany", "India", "Australia", "Japan"])
+        st.session_state.registration_location = st.selectbox("where was the organisation registered?",["United Kingdom", "USA", "France", "Germany", "India", "Australia", "Japan"], index=find_index(["United Kingdom", "USA", "France", "Germany", "India", "Australia", "Japan"], st.session_state.get("registration_location", None)))
+        st.session_state.foundation_date = st.date_input("Select the date the company was created:",value= st.session_state.get("foundation_date", date.today()))
+        st.session_state.location = st.selectbox("Where is the location of the organisation's headquarters?",["United Kingdom", "USA", "France", "Germany", "India", "Australia", "Japan"], index=find_index(["United Kingdom", "USA", "France", "Germany", "India", "Australia", "Japan"], st.session_state.get("location", None)))
 
 
         #Environmental Questions
@@ -94,6 +94,12 @@ elif st.session_state.page == 1:
         fossil_fuels = st.session_state.get("fossil_fuels", None)
         outreach = st.session_state.get("outreach", None)
         volunteer_hours = st.session_state.get("volunteer_hours", None)
+        waste = st.session_state.get("waste", None)
+        recycle = st.session_state.get("recycle", None)
+        carbon_emissions = st.session_state.get("carbon_emissions", None)
+        employees = st.session_state.get("employees", None)
+        female_employees = st.session_state.get("female_employees", None)
+
 
         done = True
         for val in st.session_state.values():
@@ -119,14 +125,12 @@ elif st.session_state.page == 1:
                 st.pyplot(consumptionFig)
 
             with tab2:
-                waste = st.session_state.get("waste", None)
-                recycle = st.session_state.get("recycle", None)
+                
                 wasteFig, wasteAx = plt.subplots(figsize=(4, 4))
                 wasteAx.pie([recycle, waste - recycle], labels=["Waste recycled", "Waste thrown"], colors=["olivedrab", "firebrick"], radius=0.8, autopct='%.0f%%', textprops={'size': 'smaller'})
                 st.pyplot(wasteFig)
 
             with tab3:
-                carbon_emissions = st.session_state.get("carbon_emissions", None)
                 emissionsFig, emissionsAx = plt.subplots(figsize=(6, 4))
                 emissionsAx.bar([name, "General"], [carbon_emissions, 500], color=["olivedrab" if carbon_emissions < 1000 else "firebrick", "olivedrab"])
                 emissionsAx.set_ylabel("Carbon Emissions (tonnes)")
@@ -135,8 +139,6 @@ elif st.session_state.page == 1:
 
             st.header("Social 🤝")
 
-            employees = st.session_state.get("employees", None)
-            female_employees = st.session_state.get("female_employees", None)
             genderFig, genderAx = plt.subplots(figsize=(4, 4))
             genderAx.pie([employees - female_employees, female_employees], labels=["Male employees", "Female/Nonbinary employees"], colors=["cornflowerblue", "darkorange"], radius=0.8, autopct='%.0f%%', textprops={'size': 'smaller'})
             st.pyplot(genderFig)
@@ -151,7 +153,6 @@ elif st.session_state.page == 1:
             environmental_score = (25 if fossil_fuels == "Yes" else 0) + ((100*(1-((energy_consumption/500000) if energy_consumption > 500000 else 1)))*0.20) + ((100*(1-(waste/50000)))*0.15) + ((100*(recycle/35000))*0.15) + ((100*(1-((carbon_emissions/600) if carbon_emissions < 600 else 1)))*0.25)
             governance_score = [st.session_state.get("risk_management", None), st.session_state.get("cybersecurity", None), st.session_state.get("whistleblower", None)].count("Yes") * (100/3)
             social_score = does_outreach + ((employee_ratio/50))*0.40 + (((volunteer_hours/20) if volunteer_hours < 20 else 1)*100)*0.30
-
 
 
             st.header("Overall Results")
