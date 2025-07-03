@@ -8,8 +8,17 @@ if "page" not in st.session_state:
 
 def nextpage(): 
     st.session_state.page += 1
-def restart(): 
+def go_back(): 
     st.session_state.page = 0
+def restart():
+    st.session_state.clear()
+    st.session_state.page = 0
+
+def find_index(lst, val):
+    try:
+        return lst.index(val)
+    except ValueError:
+        return None
 
 def plot_x_scale(value, benchmark):
     st.markdown("▼: Your score")
@@ -51,7 +60,7 @@ if st.session_state.page == 0:
         #Environmental Questions
         st.header("Environment 🌲")
 
-        st.session_state.fossil_fuels = st.radio("Does the organisation have any involvement with fossil fuels?", ["Yes","No"], index=None)
+        st.session_state.fossil_fuels = st.radio("Does the organisation have any involvement with fossil fuels?", ["Yes","No"], index=0 if st.session_state.get("fossil_fuels", None) == "Yes" else (1 if st.session_state.get("fossil_fuels", None) == "No" else None))
         st.session_state.energy_consumption = st.number_input("What is the company's annual energy consumption(kWh)?",value = st.session_state.get("energy_consumption",None))
         st.session_state.waste = st.number_input("What is the company's annual waste generation(kg)?", value = st.session_state.get("waste",None))
         st.session_state.recycle = st.number_input("How much is recycled per year(kg)?", value = st.session_state.get("recycle",None))
@@ -62,15 +71,16 @@ if st.session_state.page == 0:
 
         st.session_state.employees = st.number_input("Total number of employees?",value = st.session_state.get("employees",None))
         st.session_state.female_employees = st.number_input("Total number of female and non-binary employees?",value = st.session_state.get("female_employees",None))
-        st.session_state.outreach = st.radio("Does the organisation have any outreach programs?", ["Yes","No"], index=None)
+        st.session_state.outreach = st.radio("Does the organisation have any outreach programs?", ["Yes","No"], index=0 if st.session_state.get("outreach", None) == "Yes" else (1 if st.session_state.get("outreach", None) == "No" else None))
         st.session_state.volunteer_hours = st.number_input("Total volunteer/outreach hours per year?",value = st.session_state.get("volunteer_hours",None))
 
         #Governance Questions
         st.header("Governance ⚖️")
 
-        st.session_state.risk_management = st.radio("Is there a risk management process in place?", ["Yes","No"], index=None)
-        st.session_state.cybersecurity = st.radio("Is there a cybersecurity policy?", ["Yes","No"], index=None)
-        st.session_state.whistleblower = st.radio("Is there a whistle-blower policy?", ["Yes","No"], index=None)
+        
+        st.session_state.risk_management = st.radio("Is there a risk management process in place?", ["Yes","No"], index=0 if st.session_state.get("risk_management", None) == "Yes" else (1 if st.session_state.get("risk_management", None) == "No" else None))
+        st.session_state.cybersecurity = st.radio("Is there a cybersecurity policy?", ["Yes","No"], index=0 if st.session_state.get("cybersecurity", None) == "Yes" else (1 if st.session_state.get("cybersecurity", None) == "No" else None))
+        st.session_state.whistleblower = st.radio("Is there a whistle-blower policy?", ["Yes","No"], index=0 if st.session_state.get("whistleblower", None) == "Yes" else (1 if st.session_state.get("whistleblower", None) == "No" else None))
 
         st.button("Submit", on_click=nextpage, disabled=(st.session_state.page > 3))
 
@@ -147,10 +157,11 @@ elif st.session_state.page == 1:
             st.header("Overall Results")
             tab4, tab5, tab6 = st.tabs(["Environment", "Social", "Governance"])
             with tab4:
-                plot_x_scale(environmental_score, 48)
+                plot_x_scale(environmental_score, 38)
             with tab5:
-                plot_x_scale(social_score, 48)
+                plot_x_scale(social_score, 56)
             with tab6:
-                plot_x_scale(governance_score, 100)
+                plot_x_scale(governance_score, 44)
 
-            st.button("Restart", on_click=restart, disabled=(st.session_state.page > 3))
+        st.button("Go back", on_click=go_back, disabled=(st.session_state.page > 3))
+        st.button("Restart", on_click=restart, disabled=(st.session_state.page > 3))
