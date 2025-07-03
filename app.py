@@ -112,6 +112,10 @@ elif st.session_state.page == 1:
         elif employees is not None and female_employees is not None:
             if female_employees > employees:
                 st.warning("Female employees cannot be more than total employees.")
+        
+        elif waste is not None and recycle is not None:
+            if recycle > waste:
+                st.warning("Recycled waste cannot be greater than total waste generated")
             
         else:
 
