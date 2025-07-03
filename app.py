@@ -109,68 +109,64 @@ elif st.session_state.page == 1:
         if not done:
             st.warning("Some fields are not filled in yet.")
 
-        elif employees is not None and female_employees is not None:
+        else:
             if female_employees > employees:
                 st.warning("Female employees cannot be more than total employees.")
-        
-        elif waste is not None and recycle is not None:
-            if recycle > waste:
-                st.warning("Recycled waste cannot be greater than total waste generated")
-            
-        else:
+            elif recycle > waste:
+                st.warning("Recycled waste cannot be more than total waste.")
+            else: 
+                st.header("Environment 🌲")
 
-            st.header("Environment 🌲")
+                tab1, tab2, tab3 = st.tabs(["Energy Consumption", "Waste Management", "Carbon Emissions"])
 
-            tab1, tab2, tab3 = st.tabs(["Energy Consumption", "Waste Management", "Carbon Emissions"])
+                with tab1:
+                    labels = [f"Energy Consumption {name}", "General Energy Consumption"]
+                    values = [energy_consumption, 500000]
+                    consumptionFig, consumptionAx = plt.subplots()
+                    consumptionAx.bar(labels, values, color=["olivedrab" if energy_consumption < 500000 else "firebrick", "olivedrab"])
+                    consumptionAx.set_ylabel("Energy consumption (kWh)")
+                    consumptionAx.set_title("Consumption")
+                    st.pyplot(consumptionFig)
 
-            with tab1:
-                labels = [f"Energy Consumption {name}", "General Energy Consumption"]
-                values = [energy_consumption, 500000]
-                consumptionFig, consumptionAx = plt.subplots()
-                consumptionAx.bar(labels, values, color=["olivedrab" if energy_consumption < 500000 else "firebrick", "olivedrab"])
-                consumptionAx.set_ylabel("Energy consumption (kWh)")
-                consumptionAx.set_title("Consumption")
-                st.pyplot(consumptionFig)
+                with tab2:
+                    
+                    wasteFig, wasteAx = plt.subplots(figsize=(4, 4))
+                    wasteAx.pie([recycle, waste - recycle], labels=["Waste recycled", "Waste thrown"], colors=["olivedrab", "firebrick"], radius=0.8, autopct='%.0f%%', textprops={'size': 'smaller'})
+                    st.pyplot(wasteFig)
 
-            with tab2:
-                
-                wasteFig, wasteAx = plt.subplots(figsize=(4, 4))
-                wasteAx.pie([recycle, waste - recycle], labels=["Waste recycled", "Waste thrown"], colors=["olivedrab", "firebrick"], radius=0.8, autopct='%.0f%%', textprops={'size': 'smaller'})
-                st.pyplot(wasteFig)
+                with tab3:
+                    emissionsFig, emissionsAx = plt.subplots(figsize=(6, 4))
+                    emissionsAx.bar([name, "General"], [carbon_emissions, 500], color=["olivedrab" if carbon_emissions < 1000 else "firebrick", "olivedrab"])
+                    emissionsAx.set_ylabel("Carbon Emissions (tonnes)")
+                    emissionsAx.set_title("Carbon Emissions")
+                    st.pyplot(emissionsFig)
 
-            with tab3:
-                emissionsFig, emissionsAx = plt.subplots(figsize=(6, 4))
-                emissionsAx.bar([name, "General"], [carbon_emissions, 500], color=["olivedrab" if carbon_emissions < 1000 else "firebrick", "olivedrab"])
-                emissionsAx.set_ylabel("Carbon Emissions (tonnes)")
-                emissionsAx.set_title("Carbon Emissions")
-                st.pyplot(emissionsFig)
+                st.header("Social 🤝")
 
-            st.header("Social 🤝")
+                genderFig, genderAx = plt.subplots(figsize=(4, 4))
+                genderAx.pie([employees - female_employees, female_employees], labels=["Male employees", "Female/Nonbinary employees"], colors=["cornflowerblue", "darkorange"], radius=0.8, autopct='%.0f%%', textprops={'size': 'smaller'})
+                st.pyplot(genderFig)
 
-            genderFig, genderAx = plt.subplots(figsize=(4, 4))
-            genderAx.pie([employees - female_employees, female_employees], labels=["Male employees", "Female/Nonbinary employees"], colors=["cornflowerblue", "darkorange"], radius=0.8, autopct='%.0f%%', textprops={'size': 'smaller'})
-            st.pyplot(genderFig)
+                # ivh stands for individual volunteer hours
+                ivh = st.session_state.get('volunteer_hours', 0) / employees
+                st.write(f"20 hours per year is a good benchmark for yearly outreach hours, and you have {ivh} hours per employee, which is **{"above" if ivh >= 20 else "below"}** the benchmark. {"Well done!" if ivh >= 20 else ""}")
 
-            # ivh stands for individual volunteer hours
-            ivh = st.session_state.get('volunteer_hours', 0) / employees
-            st.write(f"20 hours per year is a good benchmark for yearly outreach hours, and you have {ivh} hours per employee, which is **{"above" if ivh >= 20 else "below"}** the benchmark. {"Well done!" if ivh >= 20 else ""}")
+                employee_ratio = (female_employees / employees) * 100
+                does_outreach = 30 if outreach == "Yes" else 0
 
-            employee_ratio = (female_employees / employees) * 100
-            does_outreach = 30 if outreach == "Yes" else 0
-
-            environmental_score = (25 if fossil_fuels == "Yes" else 0) + ((100*(1-((energy_consumption/500000) if energy_consumption > 500000 else 1)))*0.20) + ((100*(1-(waste/50000)))*0.15) + ((100*(recycle/35000))*0.15) + ((100*(1-((carbon_emissions/600) if carbon_emissions < 600 else 1)))*0.25)
-            governance_score = [st.session_state.get("risk_management", None), st.session_state.get("cybersecurity", None), st.session_state.get("whistleblower", None)].count("Yes") * (100/3)
-            social_score = does_outreach + ((employee_ratio/50))*0.40 + (((volunteer_hours/20) if volunteer_hours < 20 else 1)*100)*0.30
+                environmental_score = (25 if fossil_fuels == "Yes" else 0) + ((100*(1-((energy_consumption/500000) if energy_consumption > 500000 else 1)))*0.20) + ((100*(1-(waste/50000)))*0.15) + ((100*(recycle/35000))*0.15) + ((100*(1-((carbon_emissions/600) if carbon_emissions < 600 else 1)))*0.25)
+                governance_score = [st.session_state.get("risk_management", None), st.session_state.get("cybersecurity", None), st.session_state.get("whistleblower", None)].count("Yes") * (100/3)
+                social_score = does_outreach + ((employee_ratio/50))*0.40 + (((volunteer_hours/20) if volunteer_hours < 20 else 1)*100)*0.30
 
 
-            st.header("Overall Results")
-            tab4, tab5, tab6 = st.tabs(["Environment", "Social", "Governance"])
-            with tab4:
-                plot_x_scale(environmental_score, 38)
-            with tab5:
-                plot_x_scale(social_score, 56)
-            with tab6:
-                plot_x_scale(governance_score, 44)
+                st.header("Overall Results")
+                tab4, tab5, tab6 = st.tabs(["Environment", "Social", "Governance"])
+                with tab4:
+                    plot_x_scale(environmental_score, 38)
+                with tab5:
+                    plot_x_scale(social_score, 56)
+                with tab6:
+                    plot_x_scale(governance_score, 44)
 
         st.button("Go back", on_click=go_back, disabled=(st.session_state.page > 3))
         st.button("Restart", on_click=restart, disabled=(st.session_state.page > 3))
