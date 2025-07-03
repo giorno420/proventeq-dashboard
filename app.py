@@ -100,14 +100,18 @@ elif st.session_state.page == 1:
         employees = st.session_state.get("employees", None)
         female_employees = st.session_state.get("female_employees", None)
 
-
         done = True
         for val in st.session_state.values():
             if val is None:
                 done = False
                 break
+
         if not done:
             st.warning("Some fields are not filled in yet.")
+
+        elif employees is not None and female_employees is not None:
+            if female_employees > employees:
+                st.warning("Female employees cannot be more than total employees.")
             
         else:
 
